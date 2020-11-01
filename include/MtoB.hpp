@@ -5,6 +5,7 @@
 #ifndef MTOB_MTOB_HPP
 #define MTOB_MTOB_HPP
 
+
 // MtoB includes
 #include "MayaLoader.hpp"
 #include "MayaUtils.hpp"
@@ -36,6 +37,7 @@
 
 #include <cmath>
 
+
 class BounceRender : public MPxCommand
 {
 public:
@@ -50,7 +52,6 @@ public:
     MStatus parseSyntax (MArgDatabase &argData);
 
     static bool initializeRayTracer(RayTracer &tracer, Scene &scene, const unsigned int &width, const unsigned int &height);
-    static bool displayPixels(RayTracer &tracer, const unsigned int &width, const unsigned int &height);
 
     static const char * cmdName;
 

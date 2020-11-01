@@ -5,6 +5,7 @@
 #ifndef MTOB_MAYALOADER_HPP
 #define MTOB_MAYALOADER_HPP
 
+
 #include "adapters/Mesh.hpp"
 
 #include <iostream>
@@ -15,6 +16,7 @@
 #include <maya/MDagPath.h>
 #include <maya/MString.h>
 #include <map>
+
 
 class MayaLoader {
 public:

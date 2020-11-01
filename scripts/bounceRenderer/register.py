@@ -1,11 +1,7 @@
 from maya import cmds
 
 BOUNCE_RENDERER = "BounceRenderer"
-BOUNCE_NAME = "BounceRenderer"
-
-
-def test():
-    print("test")
+BOUNCE_NAME = "Bounce Renderer"
 
 
 def register_bounce_renderer():
@@ -48,13 +44,10 @@ def register_bounce_renderer():
                                                           "updateMayaSoftwareGlobalsTab"))
 
     # Add bounce specific render globals node & tab
-    cmds.renderer(BOUNCE_RENDERER, e=True, addGlobalsNode=("python(\\\"import bounceRenderer; "
-                                                           "bounceRenderer.create_render_globals_node()\\\")"))
+    cmds.renderer(BOUNCE_RENDERER, e=True, addGlobalsNode="defaultBounceRenderGlobals")
     cmds.renderer(BOUNCE_RENDERER, e=True, addGlobalsTab=(BOUNCE_NAME,
-                                                          ("python(\\\"import bounceRenderer; "
-                                                           "bounceRenderer.create_render_globals_tab()\\\")"),
-                                                          ("python(\\\"import bounceRenderer; "
-                                                           "bounceRenderer.update_render_globals_tab()\\\")")))
+                                                          "createBounceRenderGlobalsTab",
+                                                          "updateBounceRenderGlobalsTab"))
 
 
 def deregister_bounce_renderer():

@@ -19,6 +19,7 @@
 #include <maya/MFloatVectorArray.h>
 #include <maya/MDagPath.h>
 
+
 class MeshAdapter : public Adapter {
 public:
     MeshAdapter() : name("MeshAdapter") {}
