@@ -8,6 +8,7 @@
 #include "MtoB.hpp"
 
 #include <maya/MFnPlugin.h>
+#include <maya/MGlobal.h>
 
 //
 // Description:
@@ -20,7 +21,9 @@ MStatus initializePlugin(MObject obj) {
                                   BounceRender::creator,
                                   BounceRender::newSyntax);
     if (!stat)
-        stat.perror("Failed to register command \"BounceRender\"");
+        stat.perror("Failed to register command \"MtoB::bounceRender\"");
+
+    MGlobal::executePythonCommand("import bounceRenderer; bounceRenderer.register_bounce_renderer()");
 
     return stat;
 }
@@ -32,6 +35,9 @@ MStatus initializePlugin(MObject obj) {
 MStatus uninitializePlugin(MObject obj) {
     MFnPlugin plugin(obj);
     MStatus stat;
+
+    MGlobal::executePythonCommand("import bounceRenderer; bounceRenderer.deregister_bounce_renderer()");
+
     stat = plugin.deregisterCommand(BounceRender::cmdName);
     if (!stat)
         stat.perror("deregisterCommand");

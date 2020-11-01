@@ -68,3 +68,31 @@ target_include_directories(MtoB PUBLIC
         ${BOUNCE_RENDERER_INCLUDE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(MtoB ${MAYA_LIBRARIES} ${BOUNCE_LIBRARY})
+
+# Set deployment directories
+set(MAYA_RELEASE_DIR C:/Users/Thomas\ Vallentin/Documents/maya/PLUGINS/MtoB)
+set(PLUGIN_RELEASE_DIR ${MAYA_RELEASE_DIR}/plug-ins)
+
+# Create deployed hierarchy
+add_custom_command(TARGET MtoB
+        PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${MAYA_RELEASE_DIR})
+
+# Copy scripts to maya plug-ins
+add_custom_target(TARGET MtoB
+        PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory  ${CMAKE_CURRENT_SOURCE_DIR}/scripts ${MAYA_RELEASE_DIR}/scripts)
+
+# Copy README to maya plug-ins
+add_custom_command(TARGET MtoB
+        PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/README.md ${MAYA_RELEASE_DIR})
+
+# Copy plugin to maya plug-ins
+add_custom_command(TARGET MtoB
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${PLUGIN_RELEASE_DIR})
+
+add_custom_command(TARGET MtoB
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:MtoB> ${PLUGIN_RELEASE_DIR})
