@@ -4,14 +4,14 @@
 
 #include "MayaUtils.hpp"
 
-bool getMatrix(const MDagPath &dagPath, MMatrix &matrix) {
+MStatus getMatrix(const MDagPath &dagPath, MMatrix &matrix) {
     MStatus status = MS::kSuccess;
 
     MFnDagNode fnCam(dagPath);
-    MPlug plug = fnCam.findPlug("worldMatrix", status);
+    MPlug plug = fnCam.findPlug("worldMatrix", false);
 
-    if (status != MS::kSuccess)
-        return false;
+    if (status != MS::kSuccess) {
+        return status; }
 
     MPlug matrixPlug = plug.elementByLogicalIndex( 0 );
     MObject matrixObject = matrixPlug.asMObject();
@@ -19,5 +19,19 @@ bool getMatrix(const MDagPath &dagPath, MMatrix &matrix) {
     MFnMatrixData worldMatrixData(matrixObject);
     matrix = worldMatrixData.matrix();
 
-    return true;
+    return status;
+}
+
+MStatus getMatrix(const MDagPath &dagPath, Matrix4 &matrix) {
+    MMatrix mat;
+    MStatus status = getMatrix(dagPath, mat);
+
+    if (status != MS::kSuccess)
+        return status;
+
+    for( int i=0 ; i<4 ; i++)
+        for( int j=0 ; j<4 ; j++)
+            matrix.m[i][j] = mat(i, j);
+
+    return status;
 }

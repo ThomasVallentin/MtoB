@@ -150,7 +150,7 @@ bool BounceRender::initializeRayTracer(RayTracer &tracer, Scene &scene,
                                        const unsigned int &width, const unsigned int &height) {
     MStatus status = MS::kSuccess;
 
-    tracer.setThreadCount(1);
+    tracer.setThreadCount(8);
     tracer.setSampler(new RandomSampler());
 
     EnvironmentLight *gLight = new EnvironmentLight();
@@ -162,20 +162,12 @@ bool BounceRender::initializeRayTracer(RayTracer &tracer, Scene &scene,
     MDagPath camDagPath;
     curView.getCamera(camDagPath);
 
-    MMatrix mCamMatrix;
-    getMatrix(camDagPath, mCamMatrix);
+    Matrix4 camToWorld;
+    status = getMatrix(camDagPath, camToWorld);
 
-    Matrix4 camToWorld(mCamMatrix(0, 0), mCamMatrix(0, 1), mCamMatrix(0, 2), mCamMatrix(0, 3),
-                       mCamMatrix(1, 0), mCamMatrix(1, 1), mCamMatrix(1, 2), mCamMatrix(1, 3),
-                       mCamMatrix(2, 0), mCamMatrix(2, 1), mCamMatrix(2, 2), mCamMatrix(2, 3),
-                       mCamMatrix(3, 0), mCamMatrix(3, 1), mCamMatrix(3, 2), mCamMatrix(3, 3));
+    CHECK_MSTATUS(status)
+
     const Transform *camTransform = new Transform(camToWorld, camToWorld.getInversed());
-
-    for( int i=0 ; i<4 ; i++) {
-        for( int j=0 ; j<4 ; j++)
-            std::cout << camTransform->matrix.m[i][j] << " ";
-        std::cout << std::endl;
-    }
 
     MFnCamera fnCamera(camDagPath);
     float focal = fnCamera.focalLength();

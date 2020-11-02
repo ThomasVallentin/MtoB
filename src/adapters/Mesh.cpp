@@ -4,9 +4,11 @@
 
 #include "adapters/Mesh.hpp"
 
-MStatus MeshAdapter::load(MDagPath &dagpath, Scene &scene) {
+MStatus MeshAdapter::load(MItDag &iter, Scene &scene) {
     Material *material = new LambertMaterial(Color(.5, .5, .5));
 
+    MDagPath dagpath;
+    iter.getPath(dagpath);
     MFnMesh fnMesh(dagpath);
 
     // Init maya data structures
@@ -15,7 +17,7 @@ MStatus MeshAdapter::load(MDagPath &dagpath, Scene &scene) {
     fnMesh.getPoints(mPoints, MSpace::kWorld);
 
     MFloatVectorArray mNormals;
-    fnMesh.getNormals(mNormals, MSpace::kWorld);
+    fnMesh.getVertexNormals(false, mNormals, MSpace::kWorld);
 
     MIntArray triangleCounts, mVertices;
     fnMesh.getTriangles(triangleCounts, mVertices);
@@ -52,8 +54,7 @@ MStatus MeshAdapter::load(MDagPath &dagpath, Scene &scene) {
                                                             vertexIds,
                                                             normals);
 
-    for (int i=0 ; i < triangleCount ; i++)
-    {
+    for (int i=0 ; i < triangleCount ; i++) {
         scene.addShape(new Triangle(t, meshData, i, material));
     }
 

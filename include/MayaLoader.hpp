@@ -7,6 +7,7 @@
 
 
 #include "adapters/Mesh.hpp"
+#include "adapters/PointLight.hpp"
 
 #include <iostream>
 #include <utility>
@@ -22,6 +23,7 @@ class MayaLoader {
 public:
     MayaLoader() {
         registerAdapter(MFn::kMesh, new MeshAdapter());
+        registerAdapter(MFn::kPointLight, new PointLightAdapter());
     }
 
     MStatus load(Scene &scene);

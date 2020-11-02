@@ -24,7 +24,7 @@ class MeshAdapter : public Adapter {
 public:
     MeshAdapter() : name("MeshAdapter") {}
 
-    MStatus load(MDagPath &dagpath, Scene &scene) override;
+    MStatus load(MItDag &iter, Scene &scene) override;
 
     const std::string name;
 };

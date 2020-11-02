@@ -8,6 +8,7 @@
 
 #include <core/Scene.hpp>
 
+#include <maya/MItDag.h>
 #include <maya/MStatus.h>
 
 
@@ -15,7 +16,7 @@ class Adapter {
 public:
     Adapter() = default;
 
-    virtual MStatus load(MDagPath &dagpath, Scene &scene) = 0;
+    virtual MStatus load(MItDag &iter, Scene &scene) = 0;
 
     const std::string name = "Adapter";
 };

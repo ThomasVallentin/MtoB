@@ -21,7 +21,7 @@ MStatus MayaLoader::load(Scene &scene) {
         }
 
         std::cout << "Loading object " << dagpath.fullPathName() << std::endl;
-        status = adapterIter->second->load(dagpath, scene);
+        status = adapterIter->second->load(iter, scene);
 
         if (status != MS::kSuccess) {
             std::cerr << "Failed to load object " << dagpath.fullPathName() << std::endl;
