@@ -59,7 +59,6 @@ MStatus BounceRender::parseSyntax(MArgDatabase &argData) {
 MStatus BounceRender::doIt(const MArgList &args) {
     MStatus status = MS::kSuccess;
 
-
     // Check if the render view exists. It should always exist, unless
     // Maya is running in batch mode.
     if (!MRenderView::doesRenderEditorExist()) {
@@ -87,6 +86,8 @@ MStatus BounceRender::doIt(const MArgList &args) {
     // Get render settings data
     MCommonRenderSettingsData renderSettings;
     MRenderUtil::getCommonRenderSettings(renderSettings);
+
+    RenderGlobalsData renderGlobals = RenderGlobalsData::getBounceRenderGlobalsData();
 
     if (MRenderView::startRender(renderSettings.width, renderSettings.height, doNotClearBackground) != MS::kSuccess) {
         setResult("[MtoB] ERROR: Something went wrong while starting render.");

@@ -94,7 +94,7 @@ MStatus RenderGlobalsNode::initialize() {
 
     acceleratorAttr = enumAttr.create("accelerator", "acc", 1);
     enumAttr.addField("None", AcceleratorType::NONE);
-    enumAttr.addField("BVH", AcceleratorType::BVH);
+    enumAttr.addField("BVH", AcceleratorType::BOUNDING_VOLUME_HIERARCHY);
     nAttr.setWritable(true);
     nAttr.setStorable(true);
     addAttribute(acceleratorAttr);

@@ -9,6 +9,7 @@
 // MtoB includes
 #include "MayaLoader.hpp"
 #include "MayaUtils.hpp"
+#include "RenderGlobalsData.hpp"
 
 // Bounce includes
 #include <core/RayTracer.hpp>
@@ -58,5 +59,6 @@ public:
 private:
     bool doNotClearBackground;
 };
+
 
 #endif // MTOB_MTOB_HPP

@@ -6,9 +6,14 @@
 #define MTOB_RENDERGLOBALS_HPP
 
 
+#include "RenderGlobalsData.hpp"
+
 #include <maya/MPxNode.h>
 #include <maya/MFnEnumAttribute.h>
 #include <maya/MFnNumericAttribute.h>
+
+#include <maya/MFnDependencyNode.h>
+#include <maya/MSelectionList.h>
 
 
 class RenderGlobalsNode : public MPxNode {
@@ -41,14 +46,5 @@ public:
     static MTypeId id;
 };
 
-enum AcceleratorType {
-    NONE = 0,
-    BVH
-};
-
-enum SamplerType {
-    RANDOM_JITTER = 0,
-    ADAPTIVE
-};
 
 #endif //MTOB_RENDERGLOBALS_HPP

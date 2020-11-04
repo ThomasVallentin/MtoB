@@ -13,6 +13,9 @@ MStatus MayaLoader::load(Scene &scene) {
         // Get current dag path & ensure status is good
         CHECK_MSTATUS(iter.getPath(dagpath))
 
+        if (!dagpath.isVisible())
+            continue;
+
         auto adapterIter = adapters.find(dagpath.apiType());  // map iterator
 
         if (adapterIter == adapters.end()){
