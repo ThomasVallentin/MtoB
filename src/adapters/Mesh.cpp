@@ -48,7 +48,7 @@ MStatus MeshAdapter::load(MItDag &iter, Scene &scene) {
     const Transform *t = Transform::Identity();
     const TriangleMeshData *meshData = new TriangleMeshData(*t,
                                                             triangleCount,
-                                                            mVertices.length(),
+                                                            mPoints.length(),
                                                             vertexIds,
                                                             points,
                                                             vertexIds,

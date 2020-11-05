@@ -155,7 +155,7 @@ bool BounceRender::initializeRayTracer(RayTracer &tracer, Scene &scene,
     tracer.setSampler(new RandomSampler());
 
     EnvironmentLight *gLight = new EnvironmentLight();
-    gLight->intensity = 0.2f;
+    gLight->intensity = 0.05f;
     scene.addLight(gLight);
 
     // Camera
