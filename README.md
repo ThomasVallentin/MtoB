@@ -2,8 +2,12 @@
 
 Maya integration of my path tracer Bounce Renderer.
 
-![](demo/DEMO_MtoB_01_2.gif})
+Here's a little demo :
 
-![](demo/RENDER_Attic_orange.png})
+![](demo/DEMO_MtoB_01_2.gif)
 
-![](demo/RENDER_BlueRed_Bunny.png})
+And a few renders made using the plugin :
+
+![](demo/RENDER_Attic_orange.png)
+
+![](demo/RENDER_BlueRed_Bunny.png)
