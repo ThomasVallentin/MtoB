@@ -52,7 +52,7 @@ struct RenderGlobalsData {
 
     // Misc
     AcceleratorType accelerator = AcceleratorType::BOUNDING_VOLUME_HIERARCHY;
-    unsigned int threadCount = 1;
+    unsigned int threadCount = 8;
 };
 
 

@@ -15,6 +15,7 @@
 #include <core/RayTracer.hpp>
 #include <accelerators/BVH.hpp>
 #include <samplers/RandomSampler.hpp>
+#include <samplers/HierarchicalAdaptive.hpp>
 #include <loaders/OBJLoader.hpp>
 
 #include <lights/GradientLight.hpp>
@@ -52,12 +53,18 @@ public:
     static MSyntax	newSyntax();
     MStatus parseSyntax (MArgDatabase &argData);
 
-    static bool initializeRayTracer(RayTracer &tracer, Scene &scene, const unsigned int &width, const unsigned int &height);
+    MStatus initializeRayTracer();
 
     static const char * cmdName;
 
 private:
     bool doNotClearBackground;
+
+    RenderGlobalsData bounceRenderSettings;
+    MCommonRenderSettingsData commonRenderSettings;
+
+    RayTracer *raytracer;
+    Scene *scene;
 };
 
 

@@ -105,7 +105,7 @@ def create_render_globals_tab():
                             label="Threads",
                             columnWidth=(3, 160),
                             columnAttach=(1, "left", 4),
-                            attribute="defaultBounceRenderGlobals.threads")
+                            attribute="defaultBounceRenderGlobals.threadCount")
 
     cmds.setUITemplate("renderGlobalsTemplate", popTemplate=True)
     cmds.setUITemplate("attributeEditorTemplate", popTemplate=True)

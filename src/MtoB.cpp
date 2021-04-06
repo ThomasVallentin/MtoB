@@ -6,7 +6,6 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#include <thread>
 #include "MtoB.hpp"
 
 // ============================================================================
@@ -84,43 +83,34 @@ MStatus BounceRender::doIt(const MArgList &args) {
     }
 
     // Get render settings data
-    MCommonRenderSettingsData renderSettings;
-    MRenderUtil::getCommonRenderSettings(renderSettings);
+    MRenderUtil::getCommonRenderSettings(commonRenderSettings);
+    bounceRenderSettings = RenderGlobalsData::getBounceRenderGlobalsData();
 
-    RenderGlobalsData renderGlobals = RenderGlobalsData::getBounceRenderGlobalsData();
-
-    if (MRenderView::startRender(renderSettings.width, renderSettings.height, doNotClearBackground) != MS::kSuccess) {
+    if (MRenderView::startRender(commonRenderSettings.width, commonRenderSettings.height, doNotClearBackground) != MS::kSuccess) {
         setResult("[MtoB] ERROR: Something went wrong while starting render.");
         return MS::kFailure;
     }
 
-    RayTracer tracer(0.0001, 100000, 8, 8);
-    Accelerator *accelerator = new BVH;
-    Scene scene(accelerator);
+    unsigned int pixelCount = commonRenderSettings.width * commonRenderSettings.height;
 
-    unsigned int width = renderSettings.width;
-    unsigned int height = renderSettings.height;
-    unsigned int pixelCount = renderSettings.width * renderSettings.height;
+    status = initializeRayTracer();
 
-    MayaLoader loader;
-    loader.load(scene);
+    CHECK_MSTATUS(status)
 
-    initializeRayTracer(tracer, scene, width, height);
-
-    tracer.render(&scene);
+    raytracer->render(scene);
 
     // Create a pixel array that will be passed to the RenderView
     RV_PIXEL *pixels = new RV_PIXEL[pixelCount];
-    for (int i = 0; i < height; i++)
-        for (int j = 0; j < width; j++) {
-            size_t pixelId = (height - 1 - i) * width + j;
-            pixels[pixelId].r = tracer.pixels()[(i * width + j) * 3] * 255.0f;
-            pixels[pixelId].g = tracer.pixels()[(i * width + j) * 3 + 1] * 255.0f;
-            pixels[pixelId].b = tracer.pixels()[(i * width + j) * 3 + 2] * 255.0f;
+    for (int i = 0; i < commonRenderSettings.height; i++)
+        for (int j = 0; j < commonRenderSettings.width; j++) {
+            size_t pixelId = (commonRenderSettings.height - 1 - i) * commonRenderSettings.width + j;
+            pixels[pixelId].r = raytracer->pixels()[(i * commonRenderSettings.width + j) * 3] * 255.0f;
+            pixels[pixelId].g = raytracer->pixels()[(i * commonRenderSettings.width + j) * 3 + 1] * 255.0f;
+            pixels[pixelId].b = raytracer->pixels()[(i * commonRenderSettings.width + j) * 3 + 2] * 255.0f;
             pixels[pixelId].a = 255.0f;
         }
 
-    if (MRenderView::updatePixels(0, width - 1, 0, height - 1, pixels) != MS::kSuccess) {
+    if (MRenderView::updatePixels(0, commonRenderSettings.width - 1, 0, commonRenderSettings.height - 1, pixels) != MS::kSuccess) {
         setResult("[MtoB] ERROR: Something went wrong while updating pixels.");
         delete[] pixels;
         return MS::kFailure;
@@ -128,16 +118,13 @@ MStatus BounceRender::doIt(const MArgList &args) {
 
     delete[] pixels;
 
-    // Force the Render View to refresh the display of the affected
-    // region.
-    //
-    if (MRenderView::refresh(0, width - 1, 0, height - 1) != MS::kSuccess) {
+    // Force the Render View to refresh the display of the affected region.
+    if (MRenderView::refresh(0, commonRenderSettings.width - 1, 0, commonRenderSettings.height - 1) != MS::kSuccess) {
         setResult("[MtoB] ERROR: Something went wrong while refreshing pixels.");
         return MS::kFailure;
     }
 
     // Inform the Render View that we have completed rendering the entire image.
-    //
     if (MRenderView::endRender() != MS::kSuccess) {
         setResult("[MtoB] ERROR: Something went wrong while ending render.");
         return MS::kFailure;
@@ -147,38 +134,58 @@ MStatus BounceRender::doIt(const MArgList &args) {
     return status;
 }
 
-bool BounceRender::initializeRayTracer(RayTracer &tracer, Scene &scene,
-                                       const unsigned int &width, const unsigned int &height) {
+MStatus BounceRender::initializeRayTracer() {
     MStatus status = MS::kSuccess;
 
-    tracer.setThreadCount(8);
-    tracer.setSampler(new RandomSampler());
-
-    EnvironmentLight *gLight = new EnvironmentLight();
-    gLight->intensity = 0.05f;
-    scene.addLight(gLight);
-
-    // Camera
+    // Get rendered camera
     M3dView curView = M3dView::active3dView();
     MDagPath camDagPath;
     curView.getCamera(camDagPath);
+    MFnCamera fnCamera(camDagPath);
 
+    raytracer = new RayTracer(0.0001, 100000,
+                              bounceRenderSettings.minSamples,
+                              bounceRenderSettings.maxSamples);
+
+    // Threading
+    raytracer->setThreadCount(bounceRenderSettings.threadCount);
+
+    // Sampler
+    if (bounceRenderSettings.sampler == SamplerType::ADAPTIVE)
+        raytracer->setSampler(new HierarchicalAdaptive(bounceRenderSettings.adaptiveThreshold));
+    else
+        raytracer->setSampler(new RandomSampler());
+
+    scene = new Scene();
+
+    // Accelerator
+    if (bounceRenderSettings.accelerator == AcceleratorType::BOUNDING_VOLUME_HIERARCHY)
+        scene->accelerator = new BVH();
+
+    // Camera
     Matrix4 camToWorld;
     status = getMatrix(camDagPath, camToWorld);
 
     CHECK_MSTATUS(status)
 
     const Transform *camTransform = new Transform(camToWorld, camToWorld.getInversed());
+    Camera cam(camTransform, (float) fnCamera.focalLength(), FilmGate::Film35mm);
 
-    MFnCamera fnCamera(camDagPath);
-    float focal = fnCamera.focalLength();
+    // DoF
+    cam.focusDistance = (float) fnCamera.focusDistance();
+    cam.apertureRadius = fnCamera.isDepthOfField() ? (float) fnCamera.horizontalFilmAperture() / 10.0f : 0.0f;
+    cam.setResolution(commonRenderSettings.width, commonRenderSettings.height);
 
-    Camera cam(camTransform, focal, FilmGate::Film35mm);
-    cam.focusDistance = 1300;
-    cam.apertureRadius = 0.0f;
-    cam.setResolution(width, height);
+    raytracer->setCamera(cam);
 
-    tracer.setCamera(cam);
+    // Load scene content
+    MayaLoader loader;
+    loader.load(*scene);
 
-    return true;
+    Light *gLight = new GradientLight();
+    gLight->intensity = .5f;
+
+    scene->addLight(gLight);
+
+    return status;
 }

@@ -46,28 +46,28 @@ foreach (MAYA_LIB ${_MAYA_LIBRARIES})
     set(MAYA_LIBRARIES ${MAYA_LIBRARIES} "${MAYA_${MAYA_LIB}_LIBRARY}")
 endforeach()
 
-set(BOUNCE_RENDERER_DIR $ENV{BOUNCE_ROOT}/bounceRenderer)
+set(BOUNCE_RENDERER_DIR $ENV{BOUNCE_ROOT}\\bounceRenderer)
 
 # Add Bounce includes
 set(BOUNCE_RENDERER_INCLUDE_DIR ${BOUNCE_RENDERER_DIR}/include)
 
 # Find Bounce library
-find_library(BOUNCE_LIBRARY
-    NAMES
-        bounceRendererLib
-    PATHS
-        $ENV{BOUNCE_RENDERER_DIR}
-    PATH_SUFFIXES
-        "libraries"
-        )
+set(BOUNCE_LIBRARY ${BOUNCE_RENDERER_DIR}\\libraries\\bounceRendererLib.lib)
+
+# Get vcpkg includes and libs
+file(GLOB_RECURSE VCPKG_LIBS C:/REPOSITORIES/vcpkg/installed/x64-windows/lib/*.lib)
+set(VCPKG_INCLUDE_DIR C:/REPOSITORIES/vcpkg/installed/x64-windows/include)
+
+message(${BOUNCE_LIBRARY})
 
 set_target_properties(MtoB PROPERTIES SUFFIX ".mll")
 
 target_include_directories(MtoB PUBLIC
         ${MAYA_INCLUDE_DIR}
         ${BOUNCE_RENDERER_INCLUDE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(MtoB ${MAYA_LIBRARIES} ${BOUNCE_LIBRARY})
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${VCPKG_INCLUDE_DIR})
+target_link_libraries(MtoB ${MAYA_LIBRARIES} ${BOUNCE_LIBRARY} ${VCPKG_LIBS})
 
 # Set deployment directories
 set(MAYA_RELEASE_DIR C:/Users/Thomas\ Vallentin/Documents/maya/PLUGINS/MtoB)
@@ -79,7 +79,7 @@ add_custom_command(TARGET MtoB
         COMMAND ${CMAKE_COMMAND} -E make_directory ${MAYA_RELEASE_DIR})
 
 # Copy scripts to maya plug-ins
-add_custom_target(TARGET MtoB
+add_custom_command(TARGET MtoB
         PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory  ${CMAKE_CURRENT_SOURCE_DIR}/scripts ${MAYA_RELEASE_DIR}/scripts)
 

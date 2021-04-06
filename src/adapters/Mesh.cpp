@@ -49,6 +49,7 @@ MStatus MeshAdapter::load(MItDag &iter, Scene &scene) {
     const TriangleMeshData *meshData = new TriangleMeshData(*t,
                                                             triangleCount,
                                                             mPoints.length(),
+                                                            mNormals.length(),
                                                             vertexIds,
                                                             points,
                                                             vertexIds,

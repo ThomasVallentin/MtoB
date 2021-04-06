@@ -99,7 +99,7 @@ MStatus RenderGlobalsNode::initialize() {
     nAttr.setStorable(true);
     addAttribute(acceleratorAttr);
 
-    threadCountAttr = nAttr.create("threads", "thrds", MFnNumericData::kInt, 1);
+    threadCountAttr = nAttr.create("threadCount", "thrdc", MFnNumericData::kInt, 8);
     nAttr.setMin(1);
     nAttr.setWritable(true);
     nAttr.setStorable(true);
